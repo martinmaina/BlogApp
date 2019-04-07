@@ -23,8 +23,9 @@ def admin_access(f):
 @app.route('/')
 def home():
 	bible = []
+	print(type(mm.showBible()))
 	for bin in mm.showBible():
-		bible.append(dict(book=bin[0], chapter=bin[1], verse_no=bin[2], verse=bin[3]))
+		bible.append(dict(book=bin[0], chapter=bin[1], verse_no=bin[2], verse=bin[3], id=bin[4]))
 	#print(bible)
 	return render_template('bible.html', bible=bible, title='Bible | Maranatha')
 
@@ -44,18 +45,34 @@ def add_verse():
 
 	return render_template('addverse.html')	
 
-@app.route('/deleteVerse', methods=['GET', 'POST'])
-def delete():
-	if request.method == 'POST':
+@app.route('/deleteVerse/<int:no>', methods=['GET', 'POST'])
+@admin_access
+def delete(no):
+	if request.method == 'GET':
 		try:
-			mm.deleteVerse(request.form[id])
+			mm.deleteVerse(no)
+			print(no)
 			flash('Verse Deleted')
 		except Exception as e:
 			flash(e)
 
-	return render_template('index.html')
+	return redirect(url_for('home'))
 
 	
+@app.route('/searchWord', methods=['GET', 'POST'])
+def search_word():
+	bible = []
+	if request.method == 'POST':
+		returned = mm.searchWord(request.form['word'])
+		try:
+			for bin in returned:
+				bible.append(dict(book=bin[0][0], chapter=bin[0][1], verse_no=bin[0][2], verse=bin[0][3], id=bin[0][4]))	
+		except:
+			pass
+	return render_template('bible.html', bible=bible, title='Bible | Maranatha')
+	
+
+
 @app.route('/editverse', methods=['GET', 'POST'])
 @admin_access
 def edit_verse():
@@ -64,7 +81,7 @@ def edit_verse():
 		flash('Updated successfully!!')
 	except Exception as e:
 		pass
-	return redirect(url_for('home'))
+	return redirect(url_for('home')) 
 	
 @app.route('/login', methods=['GET', 'POST'])
 def login():
