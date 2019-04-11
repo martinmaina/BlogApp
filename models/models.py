@@ -76,9 +76,18 @@ def searchWord(word):
 
 
 	for re in res:
-		if word in re:
+		if word.capitalize() in re:
 			cur.execute('select * FROM bibleTable WHERE verse=("%s")' % re)
 			foundverses.append(list(cur.fetchall()))
+		elif word.lower() in re:
+				cur.execute('select * FROM bibleTable WHERE verse=("%s")' % re)
+				foundverses.append(list(cur.fetchall()))
+		elif word.lower().capitalize() in re:
+    			cur.execute('select * from bibleTable WHERE verse=("%s") ' % re)
+			foundverses.append(list(cur.fetchall()))
+		elif word.upper() in re:
+				cur.execute('select * FROM bibleTable WHERE verse=("%s")' % re)
+				foundverses.append(list(cur.fetchall()))
 
 	return foundverses
 

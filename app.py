@@ -62,14 +62,20 @@ def delete(no):
 @app.route('/searchWord', methods=['GET', 'POST'])
 def search_word():
 	bible = []
+	error = None
+	phrase = None
 	if request.method == 'POST':
 		returned = mm.searchWord(request.form['word'])
-		try:
-			for bin in returned:
-				bible.append(dict(book=bin[0][0], chapter=bin[0][1], verse_no=bin[0][2], verse=bin[0][3], id=bin[0][4]))	
-		except:
-			pass
-	return render_template('bible.html', bible=bible, title='Bible | Maranatha')
+		if len(returned) == 0:
+			error = "Word %s not found " % request.form['word']
+		else:
+			#phrase = returned
+			try:
+				for bin in returned:
+					bible.append(dict(book=bin[0][0], chapter=bin[0][1], verse_no=bin[0][2], verse=bin[0][3], id=bin[0][4]))	
+			except:
+				pass
+	return render_template('bible.html', bible=bible, title='Bible | Maranatha', error=error)
 	
 
 
@@ -87,7 +93,7 @@ def edit_verse():
 def login():
 	error = None
 	if request.method == 'POST':
-		if request.form['username'] != 'admin' and request.form['password'] != 'default':
+		if request.form['username'] != 'admin' or request.form['password'] != 'default':
 			error = ( "Invalid login details. Try again")
 		else:
 			session['logged_in']=True
